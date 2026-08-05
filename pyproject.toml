@@ -35,6 +35,14 @@ dependencies = []
 [project.optional-dependencies]
 dev = ["pytest>=8.0"]
 performance = ["numpy>=1.26", "numba>=0.59"]
+reproduction = [
+  "numpy==1.26.4",
+  "scipy==1.13.1",
+  "pandas==2.2.2",
+  "numba==0.60.0",
+  "matplotlib==3.9.2",
+  "pyvrp==0.13.4",
+]
 
 [project.scripts]
 ejection-aware-alns = "top_alns.experiments.runner:main"

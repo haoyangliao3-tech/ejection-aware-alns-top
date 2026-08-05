@@ -1,0 +1,17 @@
+Experiment,Comparator,Outcome,W,p_Holm,rank_biserial
+Fixed iteration,GRASP,Best seed,0,1.1e-14,1.0
+Fixed iteration,GRASP,Mean seed,0,1.1e-14,1.0
+Fixed iteration,ILS,Best seed,0,1.57e-14,1.0
+Fixed iteration,ILS,Mean seed,0,1.1e-14,1.0
+Fixed iteration,VNS,Best seed,0,1.57e-14,1.0
+Fixed iteration,VNS,Mean seed,0,1.1e-14,1.0
+Runtime budget,GRASP,Best seed,0,2.2e-14,1.0
+Runtime budget,GRASP,Mean seed,0,1.83e-14,1.0
+Runtime budget,ILS,Best seed,0,2.35e-14,1.0
+Runtime budget,ILS,Mean seed,0,1.83e-14,1.0
+Runtime budget,VNS,Best seed,0,2.35e-14,1.0
+Runtime budget,VNS,Mean seed,0,1.83e-14,1.0
+Runtime budget,PyVRP,Best seed,5,2.2e-14,0.997
+Runtime budget,PyVRP,Mean seed,1,1.83e-14,0.999
+Runtime budget,Kim augmented LNS,Best seed,282,6.99e-09,0.785
+Runtime budget,Kim augmented LNS,Mean seed,441,7.26e-08,0.706

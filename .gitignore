@@ -13,18 +13,18 @@ build/
 outputs/
 output/
 results/
+!data/results/
+!data/results/**
 logs/
 *.log
 
-# Benchmark collections and research data are obtained separately.
-data/*
-!data/sample/
-!data/sample/sample_top_instance.txt
+# Benchmark collections are obtained separately and are not redistributed.
+benchmarks/**/*.txt
+benchmarks/**/*.xlsx
+benchmarks/**/*.xls
 benchmark_data/
 benchmarks_data/
 **/TOP Instances and Solutions/
-*.xlsx
-*.xls
 
 # Manuscripts and local tooling
 paper/
