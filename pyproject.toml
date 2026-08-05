@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ejection-aware-alns-top"
+version = "0.1.0"
+description = "Ejection-Aware Adaptive Large Neighborhood Search for the Team Orienteering Problem"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {file = "LICENSE"}
+authors = [
+  {name = "Haoyang Liao"},
+  {name = "Allam Maalla"},
+]
+keywords = [
+  "team orienteering problem",
+  "adaptive large neighborhood search",
+  "ejection",
+  "metaheuristics",
+  "combinatorial optimization",
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Scientific/Engineering",
+]
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+performance = ["numpy>=1.26", "numba>=0.59"]
+
+[project.scripts]
+ejection-aware-alns = "top_alns.experiments.runner:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+addopts = "-q"

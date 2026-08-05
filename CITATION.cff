@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite the associated manuscript and this repository."
+title: "Ejection-Aware ALNS for the Team Orienteering Problem"
+type: software
+version: 0.1.0
+date-released: 2026-08-05
+authors:
+  - family-names: Liao
+    given-names: Haoyang
+  - family-names: Maalla
+    given-names: Allam
+repository-code: "https://github.com/haoyangliao3-tech/ejection-aware-alns-top"
+keywords:
+  - team orienteering problem
+  - adaptive large neighborhood search
+  - ejection
+  - metaheuristics

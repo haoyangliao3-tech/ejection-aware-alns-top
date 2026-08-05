@@ -1,0 +1,7 @@
+# vehicle_count max_distance depot_id
+2 100.0 0
+# node_id x y reward
+0 0.0 0.0 0
+1 10.0 0.0 20
+2 20.0 0.0 30
+3 15.0 10.0 25
