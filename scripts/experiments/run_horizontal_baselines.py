@@ -265,6 +265,8 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--benchmark-root", type=Path, default=DEFAULT_BENCHMARK_ROOT)
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
+    parser.add_argument("--dataset", choices=("dang", "chao"), default="dang")
+    parser.add_argument("--expected-instance-count", type=int)
     parser.add_argument("--algorithms", nargs="+", choices=ALGORITHMS, default=list(ALGORITHMS))
     parser.add_argument("--iterations", type=int, default=2500)
     parser.add_argument("--seeds", nargs="+", type=int, default=[0, 1])
@@ -287,21 +289,31 @@ def main() -> None:
         raise SystemExit("At least one seed is required")
 
     benchmark_root = args.benchmark_root.resolve()
-    instances = discover_instances(benchmark_root, dataset="dang", pattern="*.txt")
+    instances = discover_instances(benchmark_root, dataset=args.dataset, pattern="*.txt")
+    references = load_published_references(benchmark_root)
+    dataset_label = "Chao1996" if args.dataset == "chao" else "Dang2013"
+    instances = [
+        path for path in instances
+        if path.stem.lower() in references
+        and references[path.stem.lower()].dataset == dataset_label
+        and references[path.stem.lower()].best_known is not None
+    ]
+    expected_instance_count = args.expected_instance_count or (157 if args.dataset == "chao" else 82)
     if args.limit is not None:
         if args.limit <= 0:
             raise SystemExit("--limit must be positive")
         instances = instances[: args.limit]
-    elif len(instances) != 82:
+    elif len(instances) != expected_instance_count:
         raise SystemExit(
-            f"Expected exactly 82 Dang instances, found {len(instances)} at {benchmark_root}"
+            f"Expected exactly {expected_instance_count} {args.dataset} instances "
+            f"with a published BKS, found {len(instances)} at {benchmark_root}"
         )
 
     algorithms = list(dict.fromkeys(args.algorithms))
     seeds = list(dict.fromkeys(args.seeds))
     configuration = {
         "benchmark_root": str(benchmark_root),
-        "dataset": "Dang2013",
+        "dataset": dataset_label,
         "instance_count": len(instances),
         "algorithms": algorithms,
         "seeds": seeds,

@@ -185,6 +185,8 @@ def parse_args() -> argparse.Namespace:
         description="Run comparison baselines with main-method time budgets."
     )
     parser.add_argument("--reference-json", nargs="+", type=Path, required=True)
+    parser.add_argument("--dataset", choices=("dang", "chao"), default="dang")
+    parser.add_argument("--expected-instance-count", type=int)
     parser.add_argument("--benchmark-root", type=Path, default=DEFAULT_BENCHMARK_ROOT)
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
     parser.add_argument("--algorithms", nargs="+", choices=ALGORITHMS, default=list(ALGORITHMS))
@@ -234,10 +236,6 @@ def main() -> None:
         raise SystemExit("batch size must be positive")
 
     benchmark_root = args.benchmark_root.resolve()
-    instances = discover_instances(benchmark_root, dataset="dang", pattern="*.txt")
-    if len(instances) != 82:
-        raise SystemExit(f"Expected 82 Dang instances, found {len(instances)}")
-
     reference_paths = [path.resolve() for path in args.reference_json]
     budgets = load_budgets(
         reference_paths,
@@ -245,6 +243,18 @@ def main() -> None:
         args.reference_iterations,
         args.budget_mode,
     )
+    instances = discover_instances(benchmark_root, dataset=args.dataset, pattern="*.txt")
+    if args.dataset == "chao":
+        instances = [
+            path for path in instances
+            if all((path.stem.lower(), seed) in budgets for seed in seeds)
+        ]
+    expected_instance_count = args.expected_instance_count or (157 if args.dataset == "chao" else 82)
+    if len(instances) != expected_instance_count:
+        raise SystemExit(
+            f"Expected {expected_instance_count} {args.dataset} instances with "
+            f"complete budgets, found {len(instances)}"
+        )
     required = {(path.stem.lower(), seed) for path in instances for seed in seeds}
     missing = sorted(required - set(budgets))
     if missing:
@@ -259,6 +269,7 @@ def main() -> None:
         ),
         "budget_mode": args.budget_mode,
         "benchmark_root": str(benchmark_root),
+        "dataset": args.dataset,
         "instance_count": len(instances),
         "algorithms": algorithms,
         "seeds": seeds,

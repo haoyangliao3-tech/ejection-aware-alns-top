@@ -4,7 +4,7 @@
 
 This repository provides a reproducible Python implementation of Ejection-Aware Adaptive Large Neighborhood Search (ALNS) for the Team Orienteering Problem (TOP). The implementation focuses on the repair stage: customers rejected by direct-feasibility filtering remain eligible for a bounded ejection-and-rearrangement move when that move produces a feasible positive gain.
 
-The code accompanies the manuscript *Ejection-Aware Adaptive Large Neighborhood Search for the Team Orienteering Problem*. The repository contains the proposed solver, all reported comparator implementations or adapters, experiment and analysis scripts, individual algorithm-instance-seed results, figure source data, mechanism audit records, a synthetic example, and unit tests. Manuscript source files remain outside this release.
+The code accompanies the manuscript *Ejection-Aware Adaptive Large Neighborhood Search for the Team Orienteering Problem*. The repository contains the solver, the reported comparator implementations or adapters, experiment and analysis scripts, corrected algorithm-instance-seed results for two benchmark families, figure source data, mechanism audit records, a synthetic example, and unit tests. Manuscript source files remain outside this release.
 
 ## Method overview
 
@@ -122,11 +122,11 @@ Each following row contains:
 node_id x y reward
 ```
 
-The parser also accepts the public Chao/Dang TOP text format with `n`, `m`, and `tmax` headers. Benchmark collections are not redistributed here. Obtain the Dang instances from their original source, place them under `benchmarks/Dang et al., (2013)/`, and verify them against `data/benchmark_manifest.csv`. See `benchmarks/README.md`.
+The parser also accepts the public Chao/Dang TOP text format with `n`, `m`, and `tmax` headers. Benchmark collections are not redistributed here. Obtain the Dang and Chao instances from their original sources, place them under the paths documented in `benchmarks/README.md`, and verify all 239 files against `data/benchmark_manifest.csv`.
 
 ## Computational results and reproducibility
 
-The repository exposes deterministic random seeds and all solver parameters used by the runners. The `data/results` directory contains every reported algorithm-instance-seed outcome in JSON, CSV, and Excel formats. `data/figure_source` maps the plotted values to manuscript figures, while `data/audit` contains the bounded mechanism case records. Detailed schemas and provenance are documented in `data/README.md`.
+The repository exposes deterministic random seeds and all solver parameters used by the runners. The `data/results` directory contains the corrected workers=2 results for 82 Dang instances and 157 Chao instances in JSON, CSV, and Excel formats. Fixed-iteration results, symmetric wall-clock Ejection ON/OFF runs, and time-stopped external baselines are kept in separate tables. `data/figure_source` contains the current two-benchmark summary sources, while `data/audit` contains benchmark-specific mechanism case records. Detailed schemas and provenance are documented in `data/README.md`.
 
 Recreate the CSV tables and validate all reported aggregates with:
 
@@ -137,7 +137,7 @@ python scripts/analysis/validate_reported_results.py
 
 Commands for rerunning the fixed-iteration, symmetric wall-clock, runtime-budget, sensitivity, and focused mechanism experiments are documented in `scripts/README.md`.
 
-Exact wall-clock times depend on hardware, operating system, Python version, and system load. Use isolated single-worker execution and a consistent environment when reproducing runtime comparisons.
+Exact wall-clock times depend on hardware, operating system, Python version, and system load. The reported batches used at most two concurrent independent runs, with one solver process per run. Use the same concurrency and a consistent environment when reproducing runtime comparisons.
 
 ## Tests
 

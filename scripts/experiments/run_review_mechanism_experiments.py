@@ -32,7 +32,7 @@ from top_alns.parser import parse_instance
 
 DEFAULT_ITERATIONS = 2500
 SEEDS = (0, 1)
-INSTANCE_GROUPS = {
+DANG_INSTANCE_GROUPS = {
     "small": (
         "bier127_gen1_m3",
         "bier127_gen2_m3",
@@ -48,6 +48,11 @@ INSTANCE_GROUPS = {
         "rd400_gen2_m3",
         "rd400_gen3_m3",
     ),
+}
+CHAO_INSTANCE_GROUPS = {
+    "small": ("p6.2.l", "p6.3.k", "p6.4.k"),
+    "medium": ("p5.2.q", "p5.3.s", "p5.4.t"),
+    "large": ("p7.2.l", "p7.3.n", "p7.4.n"),
 }
 CONFIGS = (
     {
@@ -339,6 +344,8 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--workers", type=int, default=8)
     parser.add_argument("--iterations", type=int, default=DEFAULT_ITERATIONS)
+    parser.add_argument("--dataset", choices=("dang", "chao"), default="dang")
+    parser.add_argument("--benchmark-root", type=Path, default=PROJECT_ROOT / "benchmarks")
     parser.add_argument(
         "--output-dir", default="outputs/reviewer_mechanism_9instances_20260727"
     )
@@ -349,14 +356,30 @@ def main() -> None:
 
     output_dir = (PROJECT_ROOT / args.output_dir).resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
-    benchmark_root = PROJECT_ROOT / "benchmarks"
+    benchmark_root = args.benchmark_root.resolve()
+    instance_groups = (
+        CHAO_INSTANCE_GROUPS if args.dataset == "chao" else DANG_INSTANCE_GROUPS
+    )
     paths = {
         path.stem: path.resolve()
-        for path in discover_instances(benchmark_root, "dang", "*.txt")
+        for path in discover_instances(benchmark_root, args.dataset, "*.txt")
     }
     references = load_published_references(benchmark_root)
+    requested = {name for names in instance_groups.values() for name in names}
+    missing = sorted(requested - set(paths))
+    missing_bks = sorted(
+        name
+        for name in requested
+        if name.lower() not in references
+        or references[name.lower()].best_known is None
+    )
+    if missing or missing_bks:
+        raise SystemExit(
+            f"Focused instance validation failed: missing={missing}, "
+            f"missing_bks={missing_bks}"
+        )
     jobs: list[dict] = []
-    for size, names in INSTANCE_GROUPS.items():
+    for size, names in instance_groups.items():
         for instance in names:
             for config in CONFIGS:
                 for seed in SEEDS:
@@ -376,8 +399,18 @@ def main() -> None:
                     )
     manifest = {
         "purpose": "reviewer-requested mechanism evidence and low-cost ablations",
+        "dataset": args.dataset,
         "iterations": args.iterations, "seeds": list(SEEDS),
-        "instances": INSTANCE_GROUPS, "configs": CONFIGS,
+        "workers": args.workers,
+        "status": "running",
+        "total_runs": len(jobs),
+        "instances": instance_groups, "configs": CONFIGS,
+        "selection_rule": (
+            "one m=2, m=3, and m=4 instance near the median published time "
+            "budget in Chao Sets 6, 5, and 7"
+            if args.dataset == "chao"
+            else "predefined Dang small/medium/large focused set"
+        ),
         "fixed": {"ejection_max_attempts": 100},
         "metric_definitions": {
             "success_rate": "successful commits / attempted blocked customers",
@@ -427,6 +460,8 @@ def main() -> None:
         raise SystemExit(f"only {len(results)}/{len(jobs)} jobs completed")
     if not all(row["feasible"] for row in results):
         raise SystemExit("at least one completed solution is infeasible")
+    manifest.update({"status": "complete", "completed_runs": len(results)})
+    _atomic_json(output_dir / "manifest.json", manifest)
     print(f"Completed all {len(results)} jobs. Results: {output_dir}")
 
 

@@ -40,7 +40,7 @@ ITERATIONS = 5000
 RECORD_EVERY = 50
 SEEDS = (0, 1)
 
-INSTANCE_GROUPS = {
+DANG_INSTANCE_GROUPS = {
     "small": (
         "bier127_gen1_m3",
         "bier127_gen2_m3",
@@ -56,6 +56,16 @@ INSTANCE_GROUPS = {
         "rd400_gen2_m3",
         "rd400_gen3_m3",
     ),
+}
+
+# Nine Chao instances selected before running the focused experiments.  Each
+# size family contributes one m=2, m=3, and m=4 case near the median published
+# time budget for that fleet size.  The complete experiments still use all 157
+# Chao instances with an explicit published BKS.
+CHAO_INSTANCE_GROUPS = {
+    "small": ("p6.2.l", "p6.3.k", "p6.4.k"),
+    "medium": ("p5.2.q", "p5.3.s", "p5.4.t"),
+    "large": ("p7.2.l", "p7.3.n", "p7.4.n"),
 }
 
 # One-factor-at-a-time sensitivity around the default K=100, passes=1.
@@ -261,7 +271,9 @@ def _progress_monitor(
     )
 
 
-def _write_csv_files(output_dir: Path, results: list[dict]) -> None:
+def _write_csv_files(
+    output_dir: Path, results: list[dict], instance_groups: dict[str, tuple[str, ...]]
+) -> None:
     raw_fields = (
         "size",
         "instance",
@@ -339,7 +351,7 @@ def _write_csv_files(output_dir: Path, results: list[dict]) -> None:
         "all_history_valid",
     )
     summary: list[dict] = []
-    for size, names in INSTANCE_GROUPS.items():
+    for size, names in instance_groups.items():
         for instance in names:
             for config in CONFIGS:
                 rows = [
@@ -389,6 +401,8 @@ def main() -> None:
         description="Run TOP ejection sensitivity and save global best every 50 iterations."
     )
     parser.add_argument("--workers", type=int, default=12)
+    parser.add_argument("--dataset", choices=("dang", "chao"), default="dang")
+    parser.add_argument("--benchmark-root", type=Path, default=PROJECT_ROOT / "benchmarks")
     parser.add_argument(
         "--output-dir",
         default="outputs/sensitivity_history_5000",
@@ -405,15 +419,32 @@ def main() -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
     (output_dir / "trajectories").mkdir(exist_ok=True)
 
-    benchmark_root = PROJECT_ROOT / "benchmarks"
+    benchmark_root = args.benchmark_root.resolve()
+    instance_groups = (
+        CHAO_INSTANCE_GROUPS if args.dataset == "chao" else DANG_INSTANCE_GROUPS
+    )
     paths = {
         path.stem: path.resolve()
-        for path in discover_instances(benchmark_root, "dang", "*.txt")
+        for path in discover_instances(benchmark_root, args.dataset, "*.txt")
     }
     references = load_published_references(benchmark_root)
 
+    requested = {name for names in instance_groups.values() for name in names}
+    missing = sorted(requested - set(paths))
+    missing_bks = sorted(
+        name
+        for name in requested
+        if name.lower() not in references
+        or references[name.lower()].best_known is None
+    )
+    if missing or missing_bks:
+        raise SystemExit(
+            f"Focused instance validation failed: missing={missing}, "
+            f"missing_bks={missing_bks}"
+        )
+
     jobs: list[dict] = []
-    for size, names in INSTANCE_GROUPS.items():
+    for size, names in instance_groups.items():
         for instance in names:
             for config in CONFIGS:
                 for seed in SEEDS:
@@ -433,7 +464,8 @@ def main() -> None:
                     )
 
     if args.dry_run:
-        print(f"instances={sum(len(x) for x in INSTANCE_GROUPS.values())}")
+        print(f"dataset={args.dataset}")
+        print(f"instances={sum(len(x) for x in instance_groups.values())}")
         print(f"configs={len(CONFIGS)}")
         print(f"seeds={list(SEEDS)}")
         print(f"jobs={len(jobs)}")
@@ -447,10 +479,17 @@ def main() -> None:
 
     manifest = {
         "iterations": ITERATIONS,
+        "dataset": args.dataset,
         "record_every": RECORD_EVERY,
         "seeds": list(SEEDS),
         "workers": args.workers,
-        "instances": INSTANCE_GROUPS,
+        "instances": instance_groups,
+        "selection_rule": (
+            "one m=2, m=3, and m=4 instance near the median published time "
+            "budget in Chao Sets 6, 5, and 7"
+            if args.dataset == "chao"
+            else "predefined Dang small/medium/large focused set"
+        ),
         "configs": CONFIGS,
         "fixed": {"ejection_max_positions": 3, "ejection_max_nodes": 2},
     }
@@ -504,7 +543,7 @@ def main() -> None:
         completed.values(),
         key=lambda row: (row["size"], row["instance"], row["config"], row["seed"]),
     )
-    _write_csv_files(output_dir, results)
+    _write_csv_files(output_dir, results, instance_groups)
 
     if failures:
         (output_dir / "failures.json").write_text(

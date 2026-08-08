@@ -320,6 +320,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--reference-json", type=Path, default=DEFAULT_REFERENCE)
     parser.add_argument("--benchmark-root", type=Path, default=DEFAULT_BENCHMARK_ROOT)
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT)
+    parser.add_argument("--dataset", choices=("dang", "chao"), default="dang")
+    parser.add_argument("--expected-instance-count", type=int)
     parser.add_argument("--reference-iterations", type=int, default=2500)
     parser.add_argument("--ejection", choices=("on", "off"), default="off")
     parser.add_argument("--wall-clock-cooling", action="store_true")
@@ -355,7 +357,15 @@ def main() -> None:
         raise SystemExit("batch size must be positive")
 
     benchmark_root = args.benchmark_root.resolve()
-    instances = discover_instances(benchmark_root, dataset="dang", pattern="*.txt")
+    instances = discover_instances(benchmark_root, dataset=args.dataset, pattern="*.txt")
+    references = load_published_references(benchmark_root)
+    dataset_label = "Chao1996" if args.dataset == "chao" else "Dang2013"
+    instances = [
+        path for path in instances
+        if path.stem.lower() in references
+        and references[path.stem.lower()].dataset == dataset_label
+        and references[path.stem.lower()].best_known is not None
+    ]
     if args.instances:
         wanted = {name.lower() for name in args.instances}
         instances = [path for path in instances if path.stem.lower() in wanted]
@@ -364,8 +374,12 @@ def main() -> None:
             raise SystemExit(f"Instances not found: {sorted(missing_names)}")
     if args.limit is not None:
         instances = instances[: args.limit]
-    if not args.instances and args.limit is None and len(instances) != 82:
-        raise SystemExit(f"Expected 82 Dang instances, found {len(instances)}")
+    expected_instance_count = args.expected_instance_count or (157 if args.dataset == "chao" else 82)
+    if not args.instances and args.limit is None and len(instances) != expected_instance_count:
+        raise SystemExit(
+            f"Expected {expected_instance_count} {args.dataset} instances with a "
+            f"published BKS, found {len(instances)}"
+        )
 
     reference_path = args.reference_json.resolve()
     budgets, on_rows = load_reference(
@@ -376,12 +390,12 @@ def main() -> None:
     if missing_budgets:
         raise SystemExit(f"Missing ON budgets: {missing_budgets[:10]}")
 
-    references = load_published_references(benchmark_root)
     enable_ejection = args.ejection == "on"
     configuration = {
         "protocol": "single_arm_under_instance_mean_on_2500_reference_budget",
         "comparison_design": "symmetric_time_stopped_arm",
         "benchmark_root": str(benchmark_root),
+        "dataset": dataset_label,
         "instance_count": len(instances),
         "instances": [path.stem for path in instances],
         "seeds": seeds,

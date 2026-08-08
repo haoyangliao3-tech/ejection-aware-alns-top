@@ -12,11 +12,13 @@ TABLES = (
     "benchmark_bks",
     "fixed_iteration",
     "symmetric_wall_clock",
-    "runtime_budget",
+    "runtime_budget_baselines",
+    "runtime_budgets",
     "sensitivity",
     "focused_mechanism",
     "qa_summary",
     "reported_statistics",
+    "component_statistics",
 )
 
 
@@ -35,14 +37,8 @@ def write_csv(path: Path, rows: list[dict[str, object]]) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument(
-        "--input",
-        type=Path,
-        default=Path("data/results/normalized_results.json"),
-    )
-    parser.add_argument(
-        "--output-dir", type=Path, default=Path("data/results/csv")
-    )
+    parser.add_argument("--input", type=Path, default=Path("data/results/normalized_results.json"))
+    parser.add_argument("--output-dir", type=Path, default=Path("data/results/csv"))
     args = parser.parse_args()
     payload = json.loads(args.input.read_text(encoding="utf-8"))
     for table in TABLES:
@@ -51,26 +47,6 @@ def main() -> None:
             raise ValueError(f"Missing result table: {table}")
         write_csv(args.output_dir / f"{table}.csv", rows)
         print(f"{table}: {len(rows)} rows")
-
-    reference = [
-        row
-        for row in payload["runtime_budget"]
-        if row["Algorithm"] == "Ejection ON fixed-iteration reference"
-    ]
-    by_instance: dict[str, list[float]] = {}
-    for row in reference:
-        by_instance.setdefault(str(row["Instance"]), []).append(
-            float(row["Budget_Seconds"])
-        )
-    budgets = [
-        {
-            "instance": instance,
-            "reference_runtime_mean_seconds": sum(values) / len(values),
-        }
-        for instance, values in sorted(by_instance.items())
-    ]
-    write_csv(args.output_dir / "runtime_budgets.csv", budgets)
-    print(f"runtime_budgets: {len(budgets)} rows")
 
 
 if __name__ == "__main__":
