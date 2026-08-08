@@ -1,3 +1,0 @@
-comparison,comparator,n_pairs,mean_gap_reduction_pp,wins,ties,losses,wilcoxon_W,raw_p_value,rank_biserial,holm_adjusted_p_value
-K=100 vs K=6,6,9,1.4119834452253393,8,0,1,2.0,0.01171875,0.9111111111111111,0.0234375
-K=100 vs K=20,20,9,0.9773414702750345,7,1,1,6.0,0.0625,0.7272727272727273,0.0625

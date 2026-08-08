@@ -1,17 +1,37 @@
-Experiment,Comparator,Outcome,W,p_Holm,rank_biserial
-Fixed iteration,GRASP,Best seed,0,1.1e-14,1.0
-Fixed iteration,GRASP,Mean seed,0,1.1e-14,1.0
-Fixed iteration,ILS,Best seed,0,1.57e-14,1.0
-Fixed iteration,ILS,Mean seed,0,1.1e-14,1.0
-Fixed iteration,VNS,Best seed,0,1.57e-14,1.0
-Fixed iteration,VNS,Mean seed,0,1.1e-14,1.0
-Runtime budget,GRASP,Best seed,0,2.2e-14,1.0
-Runtime budget,GRASP,Mean seed,0,1.83e-14,1.0
-Runtime budget,ILS,Best seed,0,2.35e-14,1.0
-Runtime budget,ILS,Mean seed,0,1.83e-14,1.0
-Runtime budget,VNS,Best seed,0,2.35e-14,1.0
-Runtime budget,VNS,Mean seed,0,1.83e-14,1.0
-Runtime budget,PyVRP,Best seed,5,2.2e-14,0.997
-Runtime budget,PyVRP,Mean seed,1,1.83e-14,0.999
-Runtime budget,Kim augmented LNS,Best seed,282,6.99e-09,0.785
-Runtime budget,Kim augmented LNS,Mean seed,441,7.26e-08,0.706
+Protocol,Benchmark,Outcome,Reference,Comparator,W,p,Rank_Biserial,Wins,Ties,Losses,Holm_Adjusted_P_Value
+Fixed iteration,Chao,Best seed,Ejection ON,Ejection OFF,299.5,2.750998737248036e-09,0.7898245614035088,66,82,9,2.750998737248036e-09
+Fixed iteration,Chao,Best seed,Ejection ON,GRASP,0.0,6.891745579109807e-25,1.0,141,16,0,1.3783491158219613e-24
+Fixed iteration,Chao,Best seed,Ejection ON,ILS,0.0,3.346349980790086e-26,1.0,149,8,0,1.0039049942370259e-25
+Fixed iteration,Chao,Best seed,Ejection ON,VNS,0.0,1.5716948734880054e-26,1.0,151,6,0,6.286779493952022e-26
+Fixed iteration,Chao,Mean seed,Ejection ON,Ejection OFF,549.0,1.7338941850669565e-16,0.8560188827694729,108,34,15,1.7338941850669565e-16
+Fixed iteration,Chao,Mean seed,Ejection ON,GRASP,5.0,3.7117509594049405e-26,0.9991051454138703,148,8,1,7.423501918809881e-26
+Fixed iteration,Chao,Mean seed,Ejection ON,ILS,5.5,1.756663420545167e-26,0.9990414778668526,150,6,1,6.294710651554165e-26
+Fixed iteration,Chao,Mean seed,Ejection ON,VNS,0.0,1.5736776628885414e-26,1.0,151,6,0,6.294710651554165e-26
+Fixed iteration,Dang,Best seed,Ejection ON,Ejection OFF,97.5,3.1849097820770565e-11,0.9192546583850931,60,13,9,3.1849097820770565e-11
+Fixed iteration,Dang,Best seed,Ejection ON,GRASP,0.0,3.662660943750367e-15,1.0,82,0,0,1.4650643775001468e-14
+Fixed iteration,Dang,Best seed,Ejection ON,ILS,0.0,7.848142070506759e-15,1.0,80,2,0,2.3542349752180545e-14
+Fixed iteration,Dang,Best seed,Ejection ON,VNS,0.0,7.847449917393515e-15,1.0,80,2,0,2.3542349752180545e-14
+Fixed iteration,Dang,Mean seed,Ejection ON,Ejection OFF,130.5,1.395631835056128e-12,0.9174050632911392,68,3,11,1.395631835056128e-12
+Fixed iteration,Dang,Mean seed,Ejection ON,GRASP,0.0,3.663583406673553e-15,1.0,82,0,0,1.4653103579407284e-14
+Fixed iteration,Dang,Mean seed,Ejection ON,ILS,0.0,7.849526548031477e-15,1.0,80,2,0,1.5699053096062955e-14
+Fixed iteration,Dang,Mean seed,Ejection ON,VNS,0.0,3.663275894851821e-15,1.0,82,0,0,1.4653103579407284e-14
+Equal time,Chao,Best seed,Ejection ON,Ejection OFF,338.5,7.6080927330407514e-06,0.6533538146441372,50,95,12,7.6080927330407514e-06
+Equal time,Chao,Best seed,Ejection ON,GRASP,0.0,3.128167416915972e-24,1.0,137,20,0,9.384502250747917e-24
+Equal time,Chao,Best seed,Ejection ON,ILS,0.0,3.3457552628847275e-26,1.0,149,8,0,1.338302105153891e-25
+Equal time,Chao,Best seed,Ejection ON,VNS,0.0,2.2937946326968776e-26,1.0,150,7,0,1.1468973163484387e-25
+Equal time,Chao,Best seed,Ejection ON,PyVRP,739.5,1.6812781858695503e-17,0.8412408759124088,119,21,17,3.3625563717391006e-17
+Equal time,Chao,Mean seed,Ejection ON,Ejection OFF,852.5,1.1646273594025233e-11,0.7352895513119081,89,44,24,1.1646273594025233e-11
+Equal time,Chao,Mean seed,Ejection ON,GRASP,2.5,3.4222357035344773e-25,0.9995143745143745,142,14,1,1.0266707110603432e-24
+Equal time,Chao,Mean seed,Ejection ON,ILS,0.0,1.5743391290757134e-26,1.0,151,6,0,7.869555454526469e-26
+Equal time,Chao,Mean seed,Ejection ON,VNS,0.0,1.5739110909052938e-26,1.0,151,6,0,7.869555454526469e-26
+Equal time,Chao,Mean seed,Ejection ON,PyVRP,923.5,2.240547527628592e-20,0.8510844150608724,136,0,21,4.481095055257184e-20
+Equal time,Dang,Best seed,Ejection ON,Ejection OFF,147.5,5.861594062846223e-10,0.8705004389815628,56,15,11,5.861594062846223e-10
+Equal time,Dang,Best seed,Ejection ON,GRASP,0.0,3.661431331666009e-15,1.0,82,0,0,1.8307156658330048e-14
+Equal time,Dang,Best seed,Ejection ON,ILS,0.0,7.846757821373927e-15,1.0,80,2,0,3.138426312977404e-14
+Equal time,Dang,Best seed,Ejection ON,VNS,0.0,7.84606578244351e-15,1.0,80,2,0,3.138426312977404e-14
+Equal time,Dang,Best seed,Ejection ON,PyVRP,25.0,9.160330800665377e-15,0.9853070819864825,81,0,1,3.138426312977404e-14
+Equal time,Dang,Mean seed,Ejection ON,Ejection OFF,248.5,1.2279188402651858e-10,0.8386887374229146,63,4,15,1.2279188402651858e-10
+Equal time,Dang,Mean seed,Ejection ON,GRASP,0.0,3.662046089359831e-15,1.0,82,0,0,1.8310230446799157e-14
+Equal time,Dang,Mean seed,Ejection ON,ILS,0.0,7.848834280717969e-15,1.0,80,2,0,1.8310230446799157e-14
+Equal time,Dang,Mean seed,Ejection ON,VNS,0.0,3.663583406673553e-15,1.0,82,0,0,1.8310230446799157e-14
+Equal time,Dang,Mean seed,Ejection ON,PyVRP,0.0,3.663583406673553e-15,1.0,82,0,0,1.8310230446799157e-14

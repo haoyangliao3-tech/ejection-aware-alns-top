@@ -30,30 +30,41 @@ def solve_pyvrp_top(
     started = perf_counter()
     model = Model()
     start = instance.nodes[instance.depot_id]
-    depot = model.add_depot(start.x, start.y, name="depot")
+    start_depot = model.add_depot(start.x, start.y, name="start depot")
+    if instance.route_end_id == instance.depot_id:
+        end_depot = start_depot
+        locations = [start_depot]
+        mapped_ids = [instance.depot_id]
+    else:
+        end = instance.nodes[instance.route_end_id]
+        end_depot = model.add_depot(end.x, end.y, name="end depot")
+        locations = [start_depot, end_depot]
+        mapped_ids = [instance.depot_id, instance.route_end_id]
+
     customer_ids = sorted(set(instance.nodes) - instance.depot_ids)
-    locations = [depot]
+    visit_to_node_id: dict[int, int] = {}
     for node_id in customer_ids:
         node = instance.nodes[node_id]
-        locations.append(
-            model.add_client(
-                node.x,
-                node.y,
-                prize=int(round(node.reward * PRIZE_SCALE)),
-                required=False,
-                name=str(node_id),
-            )
+        client = model.add_client(
+            node.x,
+            node.y,
+            prize=int(round(node.reward * PRIZE_SCALE)),
+            required=False,
+            name=str(node_id),
         )
+        visit_to_node_id[len(locations)] = node_id
+        locations.append(client)
+        mapped_ids.append(node_id)
+
     model.add_vehicle_type(
         num_available=instance.vehicle_count,
-        start_depot=depot,
-        end_depot=depot,
+        start_depot=start_depot,
+        end_depot=end_depot,
         max_distance=int(math.floor(instance.max_distance * DISTANCE_SCALE)),
         unit_distance_cost=0,
         name="TOP vehicles",
     )
     matrix = build_distance_matrix(instance)
-    mapped_ids = [instance.depot_id, *customer_ids]
     for from_index, from_location in enumerate(locations):
         from_id = mapped_ids[from_index]
         for to_index, to_location in enumerate(locations):
@@ -81,7 +92,12 @@ def solve_pyvrp_top(
     for external_route in external_routes[: instance.vehicle_count]:
         nodes: list[int] = []
         for location_index in external_route:
-            node_id = customer_ids[location_index - 1]
+            try:
+                node_id = visit_to_node_id[location_index]
+            except KeyError as exc:
+                raise RuntimeError(
+                    f"PyVRP returned non-client location index {location_index}"
+                ) from exc
             if node_id not in seen:
                 seen.add(node_id)
                 nodes.append(node_id)

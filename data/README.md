@@ -1,61 +1,63 @@
 # Computational result data
 
-## Summary
+This directory contains the corrected results supporting the current manuscript. Every main-study observation is an algorithm-instance-seed run. All reported batches used `workers=2`, meaning that at most two independent runs were active concurrently and each run used one solver process.
 
-This directory contains the individual computational outcomes supporting the manuscript *Ejection-Aware Adaptive Large Neighborhood Search for the Team Orienteering Problem*. Each observation is an algorithm-instance-seed run unless otherwise stated. Values are provided in open CSV/JSON formats and in a formatted Excel workbook.
+## Coverage
+
+- Dang benchmark: 82 instances.
+- Chao benchmark, Sets 4-7: 157 instances.
+- Four seeds (`0-3`) for all main fixed-iteration and equal-time studies.
+- Two seeds (`0-1`) for the nine-instance-per-benchmark sensitivity and mechanism studies.
+
+Dang and Chao aggregates are reported separately. The package does not pool gaps across benchmark families.
 
 ## Files
 
-- `results/normalized_results.json`: canonical machine-readable package containing all result tables and metadata.
-- `results/Detailed_Instance_Results.xlsx`: formatted workbook with the same run-level data, live gap checks, QA summaries, and reported statistics.
-- `results/csv/benchmark_bks.csv`: BKS reference for each of 82 instances.
-- `results/csv/fixed_iteration.csv`: 1,640 runs; Ejection ON, Ejection OFF, GRASP, ILS, and VNS at 2,500 iterations, four seeds, and 82 instances.
-- `results/csv/symmetric_wall_clock.csv`: 656 newly run Ejection ON/OFF outcomes under identical instance-specific hard walls and time-based cooling.
-- `results/csv/runtime_budget.csv`: 1,968 records comprising the existing Ejection ON fixed-iteration reference and five time-stopped comparators.
-- `results/csv/runtime_budgets.csv`: the 82 instance-specific reference budgets used by the time-stopped comparators.
-- `results/csv/sensitivity.csv`: 126 runs for the seven K-L settings on nine instances and two seeds.
-- `results/csv/focused_mechanism.csv`: 126 focused runs and their run-level mechanism counters.
-- `results/csv/qa_summary.csv`: independently reconciled manuscript aggregates.
-- `results/csv/reported_statistics.csv`: paired W, Holm-adjusted p-value, and rank-biserial effect size records.
-- `audit/mechanism_cases.json`: bounded success/failure case records retained during the focused experiment.
-- `audit/selected_cases.json`: the two route-level cases reported in the manuscript.
-- `figure_source/*.csv`: source values used for the benchmark, validation, K-marginal, and convergence figures.
-- `benchmark_manifest.csv`: filenames, BKS values, byte counts, and SHA-256 hashes for the externally obtained Dang-82 files.
+- `results/normalized_results.json`: canonical machine-readable package.
+- `results/Detailed_Instance_Results.xlsx`: formatted workbook with the same records, formula-based gap checks, QA summaries, and statistics.
+- `results/csv/benchmark_bks.csv`: 239 BKS references.
+- `results/csv/fixed_iteration.csv`: 4,780 runs; Ejection ON/OFF, GRASP, ILS, and VNS at 2,500 iterations.
+- `results/csv/symmetric_wall_clock.csv`: 1,912 Ejection ON/OFF runs under identical instance-specific hard-wall budgets.
+- `results/csv/runtime_budget_baselines.csv`: 3,824 time-stopped GRASP, ILS, VNS, and PyVRP runs under the same budgets.
+- `results/csv/runtime_budgets.csv`: the 239 instance-specific Ejection-ON-derived budgets.
+- `results/csv/sensitivity.csv`: 252 parameter-sensitivity runs.
+- `results/csv/focused_mechanism.csv`: 252 focused runs with run-level mechanism counters.
+- `results/csv/qa_summary.csv`: 22 benchmark/protocol/algorithm aggregate rows.
+- `results/csv/reported_statistics.csv`: 36 paired comparison records.
+- `results/csv/component_statistics.csv`: 12 instance-level focused-study comparison records.
+- `audit/mechanism_cases_dang.json` and `audit/mechanism_cases_chao.json`: event-level bounded-repair audit cases.
+- `audit/selected_cases_dang.json`: the selected Dang route-level audit examples.
+- `figure_source/`: current Dang/Chao instance summaries and the two-benchmark summary JSON.
+- `benchmark_manifest.csv`: BKS, byte count, SHA-256 checksum, source DOI, and expected path for all 239 external benchmark files.
 
 ## Core variables
 
 | Variable | Meaning |
 |---|---|
-| `Algorithm` | Reported algorithm or ablation variant. |
+| `Benchmark` | `Dang` or `Chao`. |
+| `Algorithm` | Algorithm or Ejection ON/OFF arm. |
 | `Instance` | Benchmark instance stem. |
-| `Seed` | Pseudorandom seed (0-3 for the 82-instance studies; 0-1 for focused studies). |
+| `Seed` | Pseudorandom seed. |
 | `Reward` | Final collected TOP reward; larger is better. |
-| `BKS` | Published best-known-solution reward used as the reference. |
-| `BKS_Gap_Percent_Source` | `100 * (BKS - Reward) / BKS`. |
-| `Runtime_Seconds` | Wall-clock runtime per seed in seconds under the timing boundary described in the manuscript. |
+| `BKS` | Published best-known reward used as the reference. |
+| `BKS_Gap_Percent` | `100 * (BKS - Reward) / BKS`. |
+| `Runtime_Seconds` | Wall-clock runtime per seed in seconds. |
 | `Completed_Iterations` | Completed algorithm-specific search cycles. |
-| `Budget_Seconds` | Instance-specific hard-wall reference budget. |
-| `Within_Budget` | Whether measured runtime stayed within the assigned reference budget. |
+| `Budget_Seconds` | Instance-specific hard-wall budget derived from the fixed-iteration Ejection ON runs. |
+| `Within_Budget` | Whether the recorded runtime stayed within the assigned budget. |
 | `Feasible` | Result of the common post-run feasibility check. |
-| `Source_Record` | Provenance key linking the normalized row to its experiment block. |
+| `Batch_Workers` | Maximum number of concurrently active independent runs; always `2` in this release. |
+| `Source_Record` | Relative provenance key for the source experiment block. |
 
-The `Focused_Mechanism` table additionally reports repair calls, blocked and attempted customers, successful commits by ejection depth, bounded 2-opt participation, net reward gains, new-best co-occurrences, and module runtime.
+## Experimental separation
 
-## Provenance and processing
+`fixed_iteration` is the 2,500-iteration comparison. `symmetric_wall_clock` contains only the newly time-stopped Ejection ON/OFF arms. `runtime_budget_baselines` contains only time-stopped external comparators. Equal-time summaries combine the latter two tables; fixed-iteration reference records are never mixed into them.
 
-The JSON package was normalized from completed experiment manifests and result files without changing objective values, runtimes, iteration counts, or feasibility states. CSV tables are deterministic exports of that JSON. The Excel workbook contains the same records plus calculated gap columns and QA checks. Run-level gaps are computed directly from reward and BKS. Manuscript best-seed gaps first retain the best seed within each instance; mean-seed gaps average the four seeds within each instance; both are then averaged over instances.
-
-Validate the complete package with:
+The JSON package was generated from the completed unified experiment directories without changing rewards, runtimes, iteration counts, or feasibility states. CSV files are deterministic exports. Rebuild and validate them with:
 
 ```bash
 python scripts/analysis/export_result_tables.py
 python scripts/analysis/validate_reported_results.py
 ```
 
-## Access and licence
-
-Study-generated result data are available under CC BY 4.0; see `DATA_LICENSE.md`. The benchmark instances are reused public data and are not relicensed or redistributed. See `benchmarks/README.md` and `THIRD_PARTY.md`.
-
-## Citation
-
-Please cite the associated manuscript and the software repository. A persistent dataset DOI can be added by archiving a tagged GitHub release with Zenodo before manuscript submission.
+Study-generated data are available under CC BY 4.0. Benchmark instances are not relicensed or redistributed; see `benchmarks/README.md` and `THIRD_PARTY.md`.
